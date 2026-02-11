@@ -14,7 +14,7 @@ def display_image(title,image):
 
 def interactive_edge_detection(image_path):
     image = cv2.imread(image_path)
-    if image == None:
+    if image is None:
         print('Error: Image not found!')
         return
     
@@ -32,8 +32,40 @@ def interactive_edge_detection(image_path):
     while True:
         choice = input('Enter your choice (1-6):')
 
-        if choice == 1:
+        if choice == '1':
             sobel_x = cv2.Sobel(gray_image, cv2.CV_64F, 1, 0, ksize=3)
             sobel_y = cv2.Sobel(gray_image, cv2.CV_64F, 0, 1, ksize=3)
             combined_sobel = cv2.bitwise_or(sobel_x.astype(np.uint8), sobel_y.astype(np.uint8))
             display_image("Sobel Edge Detection",combined_sobel)
+
+        elif choice == '2':
+            print("Adjust the Thresholds for Canny (default: 100 to 200)")
+            lower_thresh = int(input("Lower Threshold:"))
+            upper_thresh = int(input("Upper Threshold:"))
+            edges = cv2.Canny(gray_image, lower_thresh, upper_thresh)
+            display_image("Canny Edge Detection",edges)
+
+        elif choice == '3':
+            laplacian = cv2.Laplacian(gray_image, cv2.CV_64F)
+            display_image("Laplacian Edge Detection",np.abs(laplacian).astype(np.uint8))
+
+        elif choice == '4':
+            print("Adjust the Kernel Size for Gaussian Blur (must be odd, default: 5)")
+            kernel_size = int(input("Enter the Kernel Size (odd number):"))
+            blurred = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+            display_image("Gaussian Smoothed Image",blurred)
+
+        elif choice == '5':
+            print("Adjust the Kernel Size for Median Filtering (must be odd, default: 5)")
+            kernel_size = int(input("Enter the Kernel Size (odd number):"))
+            median_filtered = cv2.medianBlur(image, kernel_size)
+            display_image("Median Smoothed Image",median_filtered)
+        
+        elif choice == '6':
+            print("Exiting...")
+            break
+
+        else:
+            print("Invalid Choice! Enter a number between 1 and 6!")
+
+interactive_edge_detection('example.jpg')
