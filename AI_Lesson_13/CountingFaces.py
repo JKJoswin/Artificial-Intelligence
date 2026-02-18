@@ -3,7 +3,7 @@ import cv2
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 cap = cv2.VideoCapture(0)
 if not cap.isOpened():
-    print("Error: Could not open the cameras.")
+    print("Error: Could not open the webcam.")
     exit()
 
 while True:
@@ -18,7 +18,11 @@ while True:
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
     
-    cv2.imshow("Face Detection - Press 'Q' to Quit", frame)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(frame, f"People Count:{len(faces)}", (10, 30), font, 1, (255, 0, 0), 2, cv2.LINE_AA)
+
+
+    cv2.imshow("Face Tracking and Counting - Press 'Q' to Quit", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
