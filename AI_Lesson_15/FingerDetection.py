@@ -19,7 +19,7 @@ with mp_hands.Hands() as hands:
             for hand_landmarks in results.multi_hand_landmarks:
                 mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-                landmarks = hand_landmarks.landmarks
+                landmarks = hand_landmarks.landmark
 
                 tips = [8, 12, 16, 20]
 
