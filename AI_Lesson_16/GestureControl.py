@@ -36,7 +36,7 @@ while True:
             dist = float(np.hypot(ip[0]-tp[0], ip[1]-tp[1]))
             if label == "Left":
                 v = np.interp(dist, [30,300], [minv, maxv])
-                try: volctl.SetMasterVolume(v, None)
+                try: volctl.SetMasterVolumeLevel(v, None)
                 except Exception as e: print(f"Volume Error:{e}")
                 bar = int(np.interp(dist, [30,300], [400,150])); pct = int(np.interp(dist, [30,300], [0,100]))
                 cv2.rectangle(img, (50,150), (85,400), (255,0,0), 2); cv2.rectangle(img, (50,bar), (85,400), (255,0,0), cv2.FILLED)
@@ -51,7 +51,7 @@ while True:
                 cv2.putText(img, f"{b}%", (w-110,450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 3)
 
     cv2.imshow(WIN, img)
-    k = cv2.waitKey(0) & 0xFF
+    k = cv2.waitKey(1) & 0xFF
     if k in (27, ord("q")): break
     try:
         if cv2.getWindowProperty(WIN, cv2.WND_PROP_VISIBLE) < 1: break
