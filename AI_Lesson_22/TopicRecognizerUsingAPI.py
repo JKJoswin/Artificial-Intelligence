@@ -1,0 +1,39 @@
+import requests
+from config import HF_API_KEY
+
+MODEL_ID = "facebook/bart-large-mnli"
+API_URL = f"https://router.huggingface.co/hf-inference/models/{MODEL_ID}"
+HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
+TOPICS = ["Sports", "Technology", "Business", "Politics", "Health"]
+
+def ask_hf(headline:str):
+    payload = {"inputs":headline, "parameters":{"candidate_labels":TOPICS}}
+    r = requests.post(API_URL, headers=HEADERS, json=payload, timeout=30)
+    if not r.ok:
+        raise RuntimeError(f"HF error {r.status_code}: {r.text}")
+    return r.json()
+
+def best_topic(preds: list):
+    best = max(preds, key=lambda x:x["score"])
+    return best["label"], best["score"]
+
+def bar(score:float) -> str:
+    pct = score * 100
+    blocks = int(pct//10)
+    return "█" * blocks + "░" * (10 - blocks)
+
+def show(headline:str, preds:list):
+    top_label, top_score = best_topic(preds)
+    print("\n"+"=" * 60)
+    print("New Topic Classifier ?????")
+    print("=" * 60)
+    print("Headline:",headline)
+    print(f"Best Topic:{top_label}")
+    print(f"Confidence:{round(top_score*100,1)}% [{bar(top_score)}]")
+
+    print("\nTop 3 Guesses:")
+    top3 = sorted(preds, key=lambda x:x["score"], reverse=True)[:3]
+
+    for i, p in enumerate(top3, start=1):
+        print(f"{i}.{p["label"]:<11} {round(p['score']*100,1)}% [{bar(p['score'])}]")
+    print("=" * 60)
