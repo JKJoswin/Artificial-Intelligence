@@ -5,9 +5,10 @@ from io import BytesIO
 from config import HF_API_KEY
 
 MODELS = [
-    "ByteDance/SDXL-Lightning",
-    "black-forest-labs/FLUX.1-dev",
+    "runwayml/stable-diffusion-v1-5",
+    "stabilityai/stable-diffusion-2",
     "stabilityai/stable-diffusion-xl-base-1.0"
+
 ]
 
 HEADERS = {"Authorization": f"Bearer {HF_API_KEY}","Accept":"image/png"}
@@ -31,4 +32,49 @@ def generate_from_text(prompt):
                 continue
             if r.status_code == 200 and "application/json" not in ct:
                 try:
-                    return
+                    return Image.open(BytesIO(r.content))
+                except Exception as e:
+                    last_err = f"Request failed with status code 200: Could not decode image bytes: {e}"
+                    break
+            try:
+                body = r.json() if "application/json" in ct else r.text
+            except Exception:
+                body = r.text
+            last_err = f"Request failed with status code {r.status_code}: {body}"
+    raise Exception(last_err or "Request failed with status code 500: Unknown Error.")
+
+def post_process_image(image):
+    image = ImageEnhance.Brightness(image).enhance(1.2)
+    image = ImageEnhance.Constrast(image).enhance(1.3)
+    return image.filter(ImageFilter.GaussianBlur(radius=2))
+
+def main():
+    print("Welcome to the Post-Processing Magic Workshop!")
+    print("This program generates an image from text and applies post-processing effects.")
+    print("Type 'exit' to quit.\n")
+
+    while True:
+        user_input = input("Enter a description for the image (or 'exit' to quit):\n")
+        if user_input.lower() == 'exit':
+            print("Goodbye!")
+            break
+
+        try:
+            print("\nGenerating image.....")
+            image = generate_from_text(user_input)
+            print("Applying post-processing effects......\n")
+            processed_image = post_process_image(image)
+            processed_image.show()
+
+            save_option = input("Do you want to save the image? (Yes/No):").strip().lower()
+            if save_option == 'yes':
+                file_name = input("Ent a name for the image file (without extension): ").strip()
+                processed_image .save(f"{file_name}.png")
+                print(f"Image saved as {file_name}.png\n")
+                    
+            print("-" * 80 + "\n")
+        except Exception as e:
+            print(f"An error occurred: {e}\n")
+            
+if __name__ == "__main__":
+     main()
